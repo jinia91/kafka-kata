@@ -1,5 +1,6 @@
 package com.redis.kafkaspring.inbound
 
+import TestProto
 import com.redis.kafkaspring.QueueMessage
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
@@ -9,10 +10,13 @@ import org.springframework.stereotype.Component
 @Component
 class KafkaSampleConsumer {
     @KafkaListener(
-        topics = ["sample"],
+        topics = ["partition-over"],
         containerFactory = "transactionKafkaListenerContainerFactory",
     )
-    fun consume(record: ConsumerRecord<String, String>) {
-        println("Consumed: ${record.value()}")
+    fun consume(record: ConsumerRecord<String, TestProto>) {
+        val testProto = record.value()
+        println("Consumed: $testProto")
+        println("Consumed: ${testProto.email}")
+        println("Consumed: ${testProto.password}")
     }
 }

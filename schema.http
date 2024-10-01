@@ -1,0 +1,18 @@
+# 기본으로 쏘면 avro로 바꿔서 보내줌
+
+POST http://localhost:8081/subjects/User-value/versions
+Content-Type: application/vnd.schemaregistry.v1+json
+
+{
+  "schema": "{\"type\":\"record\",\"name\":\"User\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"int\"}]}"
+}
+
+
+### protobuf로 보내기
+POST http://localhost:8081/subjects/User-value/versions
+Content-Type: application/vnd.schemaregistry.v1+json
+
+
+
+###
+

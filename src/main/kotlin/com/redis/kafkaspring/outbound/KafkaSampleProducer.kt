@@ -1,30 +1,32 @@
 package com.redis.kafkaspring.outbound
 
+import TestProto
 import com.redis.kafkaspring.QueueMessage
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.header.internals.RecordHeaders
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
 
 @Component
 class KafkaSampleProducer(
-    private val kafkaTemplate: KafkaTemplate<String, String>,
+    private val kafkaTemplate: KafkaTemplate<String, TestProto>,
 ) {
     fun publish(event: QueueMessage) {
-        kafkaTemplate.send(
-            ProducerRecord(
-                "sample",
-                null,
-                event.clientId,
-                event.message,
-                event.recordHeaders,
-            ),
-        )
-    }
+        val testProto = TestProto.newBuilder()
+            .setMemberId(1)
+            .setEmail("test1")
+            .setPassword("test2")
+            .build()
 
-    private val QueueMessage.recordHeaders: RecordHeaders
-        get() = RecordHeaders().apply {
-            this.add("SubjectId", this@recordHeaders.subjectId.toByteArray())
-        }
+        val producerRecord = ProducerRecord(
+            event.topic,
+            event.partitions,
+            event.key,
+            testProto
+        )
+
+        producerRecord.headers().add("Metadata", "Metadata".toByteArray())
+
+        kafkaTemplate.send(producerRecord)
+    }
 }

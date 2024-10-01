@@ -13,7 +13,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
   kafka:
     producer:
       bootstrap-servers: localhost:10001, localhost:10002, localhost:10003

@@ -85,10 +85,28 @@ services:
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
     networks:
       - kafka_network
     volumes:
       - Kafka02:/bitnami/kafka
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.3.0
+    container_name: schema-registry
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://Kafka00Service:9092,PLAINTEXT://Kafka01Service:9092,PLAINTEXT://Kafka02Service:9092"
+      SCHEMA_REGISTRY_HOST_NAME: "schema-registry"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_DEBUG: "true"
+    depends_on:
+      - Kafka00Service
+      - Kafka01Service
+      - Kafka02Service
+    networks:
+      - kafka_network
 
   KafkaWebUiService:
     image: provectuslabs/kafka-ui:latest
@@ -100,6 +118,7 @@ services:
       - KAFKA_CLUSTERS_0_NAME=Local-Kraft-Cluster
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=Kafka00Service:9092,Kafka01Service:9092,Kafka02Service:9092
       - DYNAMIC_CONFIG_ENABLED=true
+      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://schema-registry:8081
       - KAFKA_CLUSTERS_0_AUDIT_TOPICAUDITENABLED=true
       - KAFKA_CLUSTERS_0_AUDIT_CONSOLEAUDITENABLED=true
     depends_on:

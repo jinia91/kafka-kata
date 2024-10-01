@@ -1,7 +1,8 @@
 package com.redis.kafkaspring
 
 data class QueueMessage(
-    val clientId: String,
-    val subjectId: String,
+    val topic : String = "partition-over",
+    val partitions: Int,
+    val key : String,
     val message: String,
 )
