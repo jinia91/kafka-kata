@@ -16,4 +16,4 @@ spring:
       ddl-auto: create-drop
   kafka:
     producer:
-      bootstrap-servers: localhost:10001, localhost:10002, localhost:10003
+      bootstrap-servers: localhost:10001, localhost:10002, localhost:10000

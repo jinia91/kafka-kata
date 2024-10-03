@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
-    kotlin("plugin.jpa") version "1.9.25"
+//    kotlin("plugin.jpa") version "1.9.25"
     id("com.google.protobuf") version "0.9.4"
 }
 
@@ -27,7 +27,7 @@ dependencies {
     implementation("io.confluent:kafka-protobuf-serializer:7.7.1")
     implementation("io.confluent:kafka-schema-registry-client:7.7.1")
     implementation(project(":protobuf"))
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-integration")
     implementation("org.springframework.boot:spring-boot-starter-web")

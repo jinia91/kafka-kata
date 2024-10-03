@@ -14,6 +14,7 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.ContainerProperties
 
 @Configuration
 @EnableKafka
@@ -27,9 +28,11 @@ class TransactionConsumerConfig(
         )
 
     private val consumerProps = mapOf(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:10001, localhost:10002, localhost:10003",
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:10001, localhost:10002, localhost:10000",
         ConsumerConfig.GROUP_ID_CONFIG to "group-1",
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
+        ConsumerConfig.ISOLATION_LEVEL_CONFIG to "read_committed",
         "schema.registry.url" to "http://localhost:8081",
         "specific.protobuf.value.type" to TestProto::class.java,
 
@@ -40,5 +43,30 @@ class TransactionConsumerConfig(
         ConcurrentKafkaListenerContainerFactory<String, TestProto>()
             .also {
                 it.consumerFactory = consumerFactory
+                it.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
             }
+
+//
+//    @Bean
+//    fun consumerFactory2() = DefaultKafkaConsumerFactory<String, TestProto>(
+//        consumerProps2,
+//        StringDeserializer(),
+//        KafkaProtobufDeserializer()
+//    )
+//
+//    private val consumerProps2 = mapOf(
+//        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:10001, localhost:10002, localhost:10003",
+//        ConsumerConfig.GROUP_ID_CONFIG to "group-2",
+//        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+//        "schema.registry.url" to "http://localhost:8081",
+//        "specific.protobuf.value.type" to TestProto::class.java,
+//
+//        )
+//
+//    @Bean
+//    fun transactionKafkaListenerContainerFactory2(consumerFactory2: ConsumerFactory<String, TestProto>) =
+//        ConcurrentKafkaListenerContainerFactory<String, TestProto>()
+//            .also {
+//                it.consumerFactory = consumerFactory2
+//            }
 }
