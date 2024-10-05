@@ -27,6 +27,9 @@ dependencies {
     implementation("io.confluent:kafka-protobuf-serializer:7.7.1")
     implementation("io.confluent:kafka-schema-registry-client:7.7.1")
     implementation(project(":protobuf"))
+
+    implementation("org.apache.kafka:kafka-streams:3.7.1")
+    implementation("io.confluent:kafka-streams-protobuf-serde:7.7.1")
 //    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-integration")

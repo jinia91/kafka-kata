@@ -29,6 +29,14 @@ class KafkaSampleConsumer {
 
         throw RuntimeException("error")
     }
+
+    @KafkaListener(
+        topics = ["word-count"],
+        containerFactory = "transactionKafkaListenerContainerFactory",
+    )
+    fun consume2(record: ConsumerRecord<String, TestProto>, ack: Acknowledgment) {
+
+    }
 }
 
 // 1. 질문
