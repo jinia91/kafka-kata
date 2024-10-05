@@ -85,7 +85,6 @@ services:
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-
     networks:
       - kafka_network
     volumes:
@@ -108,23 +107,69 @@ services:
     networks:
       - kafka_network
 
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.3.0
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "PLAINTEXT://Kafka00Service:9092"
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: "kafka-connect-group"
+      CONNECT_CONFIG_STORAGE_TOPIC: "_connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
+      CONNECT_KEY_CONVERTER: "io.confluent.connect.protobuf.ProtobufConverter"
+      CONNECT_VALUE_CONVERTER: "io.confluent.connect.protobuf.ProtobufConverter"
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+    depends_on:
+      - Kafka00Service
+      - Kafka01Service
+      - Kafka02Service
+    volumes:
+      - ./kafka-connect-jars:/etc/kafka-connect/jars
+      - ./kafka-connect-plugins:/etc/kafka-connect/plugins
+      - ./log4j.properties:/etc/kafka/log4j.properties
+
+    networks:
+      - kafka_network
+
+    command:
+      - "bash"
+      - "-c"
+      - |
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest && \
+        confluent-hub install --no-prompt redis/redis-kafka-connect:latest&& \
+        /etc/confluent/docker/run
+
   KafkaWebUiService:
     image: provectuslabs/kafka-ui:latest
     restart: always
     container_name: KafkaWebUiContainer
     ports:
-      - '8085:8080' # 호스트의 8085 포트를 컨테이너의 8080 포트에 바인딩
+      - '8085:8080'
     environment:
       - KAFKA_CLUSTERS_0_NAME=Local-Kraft-Cluster
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=Kafka00Service:9092,Kafka01Service:9092,Kafka02Service:9092
-      - DYNAMIC_CONFIG_ENABLED=true
       - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://schema-registry:8081
       - KAFKA_CLUSTERS_0_AUDIT_TOPICAUDITENABLED=true
       - KAFKA_CLUSTERS_0_AUDIT_CONSOLEAUDITENABLED=true
+      - KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME=Local-Kafka-Connect
+      - KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS=http://kafka-connect:8083
     depends_on:
       - Kafka00Service
       - Kafka01Service
       - Kafka02Service
+      - schema-registry
+      - kafka-connect
     networks:
       - kafka_network
 
